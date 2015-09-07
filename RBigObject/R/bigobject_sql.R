@@ -36,5 +36,7 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
     paste(collapse = "")
   url <- sprintf("%s/cmd", paste(ip, port, sep = ":"))
   response <- POST(url, body = content)
-  content(response)
+  retval <- content(response)
+  if (retval$Status != 0) stop(retval$Err)
+  retval
 }
