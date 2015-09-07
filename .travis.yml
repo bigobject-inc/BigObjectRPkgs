@@ -7,7 +7,7 @@ addons:
     - pandoc
 
 script: 
-  - cd RBigObject && ./../travis-tool.sh run_tests
+  - cd RBigObject && ./../travis-tool.sh run_tests && cd ..
 
 after_failure:
   - ./travis-tool.sh dump_logs
@@ -20,7 +20,7 @@ before_install:
   - ./travis-tool.sh bootstrap
 
 install:
-  - cd RBigObject && ./../travis-tool.sh install_deps
+  - cd RBigObject && ./../travis-tool.sh install_deps && cd ..
   # Install testthat after running install_deps, otherwise devtools itself might be installed from CRAN or c2d4u
 
 after_success:
