@@ -7,4 +7,4 @@ Author: Wush Wu
 Maintainer: Wush Wu <wush978@gmail.com>
 Description: The DBI Interface of BigObject via HTTP Protocol
 License: GPL(>= 3)
-Imports: httr, RJSONIO
+Imports: httr, RJSONIO, magrittr
