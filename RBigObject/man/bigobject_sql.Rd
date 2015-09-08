@@ -5,7 +5,8 @@
 \title{Submit SQL Query to BigObject}
 \usage{
 bigobject_sql(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"),
-  port = getOption("BIGOBJECT_PORT", "9090"))
+  port = getOption("BIGOBJECT_PORT", "9090"),
+  verbose = getOption("BIGOJBECT_VERBOSE", TRUE))
 }
 \arguments{
 \item{stmt}{character. A series of SQL statement.
@@ -17,15 +18,18 @@ These query will be executed from the first element to the last element.}
 \item{port}{string. The port number.}
 }
 \value{
-A list with the following slots:
 \itemize{
- \item{"Content"} The returned content.
- \item{"Status"}
- \item{"Err"}
+ \item{\code{data.frame}} Single statement. Some data are returned.
+ \item{\code{NULL}} Single statement. No data is returned.
+ \item{\code{list}} Multiple statements. The element is the returned \code{data.frame} or \code{NULL}
 }
 }
 \description{
 Submit SQL Query to BigObject
+}
+\details{
+This is a low level function which will be called by other sql interface.
+Please do not use this function unless you want to modify the returned function by your self.
 }
 \references{
 \url{http://docs.bigobject.io/API/index.html}

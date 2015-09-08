@@ -2,7 +2,8 @@
 
 export(bigobject_connection)
 export(bigobject_sql)
-importFrom(RJSONIO,toJSON)
 importFrom(httr,POST)
 importFrom(httr,content)
+importFrom(jsonlite,fromJSON)
+importFrom(jsonlite,toJSON)
 importFrom(magrittr,"%>%")
