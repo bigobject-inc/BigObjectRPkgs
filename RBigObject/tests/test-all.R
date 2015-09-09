@@ -7,9 +7,13 @@ library("magrittr")
   invisible(bigobject_sql("DROP TABLE hashtest"))
 }
 
-verify_sql <- function(stmt, result) {
+verify <- function(obj, signature) {
+  expect_equal(digest(obj), signature)
+}
+
+verify_sql <- function(stmt, signature) {
   response <- bigobject_sql(stmt)
-  expect_equal(digest(response), result)
+  verify(response, signature)
 }
 
 test_check("RBigObject")

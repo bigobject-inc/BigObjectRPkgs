@@ -110,13 +110,13 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
 
 .bigobject_sql_scan <- function(handle, ip, port, verbose, start = 1L, end = -1L, page = 1000L, as = c("json", "raw", "table"), desc = NULL) {
   stopifnot(page <= 1000 & page >= 1)
-  body <- .bigobject_stmt(sprintf("scan %s %d %d %d", handle, start, end, page))
+  body <- .bigobject_stmt(sprintf("scan %s %d %d %d", handle, as.integer(start), as.integer(end), as.integer(page)))
   poster <- .get_bigobject_poster(ip, port)
   switch(as[1], 
          "json" = poster(body),
          "raw" = poster(body, "raw"),
          "table" = {
-           if (is.null(desc)) desc <- .bigobject_hdesc(handle, ip, poert, verbose)
+           if (is.null(desc)) desc <- .bigobject_sql_hdesc(handle, ip, port, verbose)
            .bigobject_scan_table(poster(body, "raw"), desc)
          },
          stop("Not supported argument!")
@@ -148,7 +148,7 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
       }
     }
   }
-  retval.content <- retval.content[!sapply(retval.content, is.null)]
+  retval.content <- retval.content[sapply(retval.content, length) > 0]
   stopifnot(sapply(retval.content, function(x) dim(x)[2]) %>% unique %>% length == 1)
   stopifnot(nrow(desc) == dim(retval.content[[1]])[2])
   mapper <- type_mapping(desc$type)
@@ -171,7 +171,7 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   handle <- .bigobject_sql_handle(stmt, ip, port, verbose)
   if (is.null(handle)) return(invisible(NULL))
   desc <- .bigobject_sql_hdesc(handle, ip, port, verbose)
-  retval <- .bigobject_sql_scan(handle, ip, port, verbose, page = 1000L, as = "table", desc)
+  retval <- .bigobject_sql_scan(handle, ip, port, verbose, page = 1000L, as = "table", desc = desc)
   .bigobject_gc(handle, ip, port)
   retval
 }
