@@ -2,6 +2,7 @@
 
 export(bigobject_connection)
 export(bigobject_sql)
+importFrom(DBI,dbExistsTable)
 importFrom(httr,POST)
 importFrom(httr,content)
 importFrom(jsonlite,fromJSON)
