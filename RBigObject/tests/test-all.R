@@ -17,6 +17,8 @@ test_check("RBigObject")
 {
   # clean up
   invisible(bigobject_sql("DROP TABLE hashtest"))
+
+  bigobject_sql("GC ALL")
 }
 
 
