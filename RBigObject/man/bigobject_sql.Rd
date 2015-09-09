@@ -6,7 +6,7 @@
 \usage{
 bigobject_sql(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"),
   port = getOption("BIGOBJECT_PORT", "9090"),
-  verbose = getOption("BIGOJBECT_VERBOSE", TRUE))
+  verbose = getOption("BIGOJBECT_VERBOSE", TRUE), page = 1000L)
 }
 \arguments{
 \item{stmt}{character. A series of SQL statement.
@@ -16,6 +16,10 @@ These query will be executed from the first element to the last element.}
 \item{ip}{string. The ip address or domain name to the BigObject instance.}
 
 \item{port}{string. The port number.}
+
+\item{verbose}{logical value. Whether to print verbose message.}
+
+\item{page}{integer. The chunk size of retriving data. The max size is 1000.}
 }
 \value{
 \itemize{

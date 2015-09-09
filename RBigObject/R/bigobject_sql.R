@@ -55,6 +55,8 @@ type_mapping <- function(x) {
 #'These query will be executed from the first element to the last element.
 #'@param ip string. The ip address or domain name to the BigObject instance.
 #'@param port string. The port number.
+#'@param verbose logical value. Whether to print verbose message.
+#'@param page integer. The chunk size of retriving data. The max size is 1000.
 #'@return 
 #'\itemize{
 #'  \item{\code{data.frame}} Single statement. Some data are returned.
@@ -71,8 +73,8 @@ type_mapping <- function(x) {
 #'@importFrom jsonlite toJSON
 #'@importFrom jsonlite fromJSON
 #'@importFrom magrittr %>%
-bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), port = getOption("BIGOBJECT_PORT", "9090"), verbose = getOption("BIGOJBECT_VERBOSE", TRUE)) {
-  if (length(stmt) == 1) .bigobject_sql(stmt, ip, port, verbose) else lapply(stmt, .bigobject_sql, ip = ip, port = port, verbose = verbose)
+bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), port = getOption("BIGOBJECT_PORT", "9090"), verbose = getOption("BIGOJBECT_VERBOSE", TRUE), page = 1000L) {
+  if (length(stmt) == 1) .bigobject_sql(stmt, ip, port, verbose) else lapply(stmt, .bigobject_sql, ip = ip, port = port, verbose = verbose, page)
 }
 
 .bigobject_stmt <- function(stmt, opts = list()) {
@@ -106,8 +108,9 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   desc$Content$schema$attr
 }
 
-.bigobject_sql_scan <- function(handle, ip, port, verbose, as = c("json", "raw", "table"), desc = NULL) {
-  body <- .bigobject_stmt(sprintf("scan %s", handle))
+.bigobject_sql_scan <- function(handle, ip, port, verbose, start = 1L, end = -1L, page = 1000L, as = c("json", "raw", "table"), desc = NULL) {
+  stopifnot(page <= 1000 & page >= 1)
+  body <- .bigobject_stmt(sprintf("scan %s %d %d %d", handle, start, end, page))
   poster <- .get_bigobject_poster(ip, port)
   switch(as[1], 
          "json" = poster(body),
@@ -163,12 +166,14 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   retval
 }
 
-.bigobject_sql <- function(stmt, ip, port, verbose) {
+.bigobject_sql <- function(stmt, ip, port, verbose, page = 1000L) {
   stopifnot(class(stmt) == "character")
   handle <- .bigobject_sql_handle(stmt, ip, port, verbose)
   if (is.null(handle)) return(invisible(NULL))
   desc <- .bigobject_sql_hdesc(handle, ip, port, verbose)
-  .bigobject_sql_scan(handle, ip, port, verbose, as = "table", desc)
+  retval <- .bigobject_sql_scan(handle, ip, port, verbose, page = 1000L, as = "table", desc)
+  .bigobject_gc(handle, ip, port)
+  retval
 }
 
 
@@ -179,4 +184,28 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
          "numeric" = "FLOAT",
          "POSIXct" = "DATETIME64"
   )
+}
+
+.bigobject_gc_list <- function(ip, port) {
+  poster <- .get_bigobject_poster(ip, port)
+  body <- .bigobject_stmt("GC LIST")
+  obj <- poster(body)
+  check_response(obj)
+  obj$Content %>% unlist
+}
+
+.bigobject_gc <- function(handle, ip, port) {
+  poster <- .get_bigobject_poster(ip, port)
+  body <- .bigobject_stmt(sprintf("GC DEL %s", handle))
+  obj <- poster(body)
+  check_response(obj)
+  invisible(NULL)
+}
+
+.bigobject_gc_all <- function(ip, port) {
+  poster <- .get_bigobject_poster(ip, port)
+  body <- .bigobject_stmt(sprintf("GC ALL"))
+  obj <- poster(body)
+  check_response(obj)
+  invisible(NULL)
 }
