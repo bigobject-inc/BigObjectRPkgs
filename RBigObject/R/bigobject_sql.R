@@ -24,9 +24,9 @@ check_response <- function(obj) {
   "INT64" = "numeric",
   "FLOAT" = "numeric",
   "DOUBLE" = "numeric",
-  "DATE32" = NA,
+  "DATE32" = "POSIXct",
   "DATETIME32" = "POSIXct",
-  "DATETIME64" = NA
+  "DATETIME64" = "POSIXct"
 )
 
 .type_class <- list(
@@ -75,30 +75,54 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   if (length(stmt) == 1) .bigobject_sql(stmt, ip, port, verbose) else lapply(stmt, .bigobject_sql, ip = ip, port = port, verbose = verbose)
 }
 
-.bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), port = getOption("BIGOBJECT_PORT", "9090"), verbose = getOption("BIGOJBECT_VERBOSE", TRUE)) {
-  stopifnot(class(stmt) == "character")
-  body <- lapply(stmt, function(x) list(Stmt = x, Opts = list(Handle = TRUE))) %>%
-    lapply(toJSON, pretty = FALSE, auto_unbox = TRUE) %>%
-    paste(collapse = "")
+.bigobject_stmt <- function(stmt, opts = list()) {
+  stopifnot(length(stmt) == 1)
+  if (length(opts) == 0) list(Stmt = stmt) %>% toJSON(auto_unbox = TRUE) else {
+    list(list(Stmt = stmt, Opts = opts)) %>% 
+      lapply(toJSON, pretty = FALSE, auto_unbox = TRUE) %>%
+      paste(collapse = "")
+  }
+}
+
+.get_bigobject_poster <- function(ip, port) {
   url <- sprintf("%s/cmd", paste(ip, port, sep = ":"))
-  handle <- POST(url, body = body) %>% 
-    content()
+  function(body, as = NULL) {
+    POST(url, body = body) %>% content(as)
+  }
+}
+
+.bigobject_sql_handle <- function(stmt, ip, port, verbose) {
+  body <- .bigobject_stmt(stmt, list(Handle = TRUE))
+  poster <- .get_bigobject_poster(ip, port)
+  handle <- poster(body)
   check_response(handle)
-  handle <- handle$Content$res
-  if (is.null(handle)) return(invisible(NULL))
-  body2 <- list(Stmt = sprintf("hdesc %s", handle)) %>%
-    toJSON(auto_unbox = TRUE)
-  desc <- POST(url, body = body2) %>%
-    content("text") %>%
-    fromJSON
-  check_response(desc)
-  desc <- desc$Content$schema$attr
-  body3 <- list(Stmt = sprintf("scan %s", handle)) %>%
-    toJSON(auto_unbox = TRUE)
-  response <- POST(url, body = body3)
-  retval.bin <- content(response, "raw")
-  if (verbose) cat(sprintf("Read %d bytes data from BigObject\n", length(retval.bin)))
+  handle$Content$res
+}
+
+.bigobject_sql_hdesc <- function(handle, ip, port, verbose) {
+  body <- .bigobject_stmt(sprintf("hdesc %s", handle))
+  poster <- .get_bigobject_poster(ip, port)
+  desc <- poster(body, "text") %>% fromJSON
+  desc$Content$schema$attr
+}
+
+.bigobject_sql_scan <- function(handle, ip, port, verbose, as = c("json", "raw", "table"), desc = NULL) {
+  body <- .bigobject_stmt(sprintf("scan %s", handle))
+  poster <- .get_bigobject_poster(ip, port)
+  switch(as[1], 
+         "json" = poster(body),
+         "raw" = poster(body, "raw"),
+         "table" = {
+           if (is.null(desc)) desc <- .bigobject_hdesc(handle, ip, poert, verbose)
+           .bigobject_scan_table(poster(body, "raw"), desc)
+         },
+         stop("Not supported argument!")
+         )
+}
+
+.bigobject_scan_table <- function(retval.bin, desc) {
   con <- rawConnection(retval.bin)
+  on.exit(close(con), add = TRUE)
   tmp <- readLines(con, n = 1L)
   obj <- fromJSON(tmp)
   if (obj$Status != 0) stop(obj$Err) else {
@@ -137,4 +161,22 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   class(retval) <- "data.frame"
   rownames(retval) <- seq_len(length(retval[[1]])) %>% paste
   retval
+}
+
+.bigobject_sql <- function(stmt, ip, port, verbose) {
+  stopifnot(class(stmt) == "character")
+  handle <- .bigobject_sql_handle(stmt, ip, port, verbose)
+  if (is.null(handle)) return(invisible(NULL))
+  desc <- .bigobject_sql_hdesc(handle, ip, port, verbose)
+  .bigobject_sql_scan(handle, ip, port, verbose, as = "table", desc)
+}
+
+
+.bigobject_datatype <- function(obj) {
+  switch(class(obj)[1],
+         "character" = "STRING",
+         "integer" = "INT32",
+         "numeric" = "FLOAT",
+         "POSIXct" = "DATETIME64"
+  )
 }
