@@ -1,3 +1,8 @@
+options(
+  "BIGOBJECT_IP" = Sys.getenv("BIGOBJECT_IP"),
+  "BIGOBJECT_PORT" = Sys.getenv("BIGOBJECT_PORT")
+)
+
 library("testthat")
 library("RBigObject")
 library("digest")
