@@ -12,7 +12,7 @@ install:
 # Adapt as necessary starting from here
 
 build_script:
-  - copy travis-tools.sh RBigObject/
+  - copy travis-tool.sh.cmd RBigObject\
   - cd RBigObject && travis-tool.sh install_deps && cd ..
 
 test_script:
