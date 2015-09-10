@@ -3,9 +3,6 @@ options(
   "BIGOBJECT_PORT" = Sys.getenv("BIGOBJECT_PORT")
 )
 
-print(getOption("BIGOBJECT_IP", "127.0.0.1"))
-print(getOption("BIGOBJECT_PORT", "9090"))
-
 library("testthat")
 library("RBigObject")
 library("digest")

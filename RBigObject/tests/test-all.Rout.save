@@ -1,0 +1,89 @@
+
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> options(
++   "BIGOBJECT_IP" = Sys.getenv("BIGOBJECT_IP"),
++   "BIGOBJECT_PORT" = Sys.getenv("BIGOBJECT_PORT")
++ )
+> 
+> library("testthat")
+> library("RBigObject")
+Loading required package: DBI
+> library("digest")
+> library("magrittr")
+
+Attaching package: 'magrittr'
+
+The following objects are masked from 'package:testthat':
+
+    equals, is_less_than, not
+
+> {
++ # bootstrap
++   invisible(bigobject_sql("DROP TABLE hashtest"))
++   invisible(bigobject_sql("DROP TABLE iristest"))
++ }
+> 
+> test_check("RBigObject")
+DBI Interface for BigObject
+DBI Interface for BigObject
+   order_id Customer.id Product.id channel_name                Date qty
+1         1        3226       2557        am/pm 2013-01-01 00:04:04   8
+2         2        6691       2631        am/pm 2013-01-01 00:11:26   4
+3         2        6691       1833        am/pm 2013-01-01 00:21:02   1
+4         3        4138       1626        am/pm 2013-01-01 00:30:22   5
+5         3        4138        375        am/pm 2013-01-01 00:35:44   6
+6         3        4138       3336        am/pm 2013-01-01 00:45:12   8
+7         3        4138        736          CVS 2013-01-01 00:55:34   6
+8         4        1292       4434         7-11 2013-01-01 01:06:00   6
+9         5        5596       4135         7-11 2013-01-01 01:08:42  10
+10        5        5596       3528        am/pm 2013-01-01 01:18:10   9
+   total_price
+1        52.24
+2        39.72
+3         6.90
+4        42.10
+5        67.26
+6        41.68
+7        56.40
+8        86.64
+9        50.10
+10       94.68
+BigObject Connection. (ip: 140.112.42.22 port: 9898)
+  order_id Customer.id Product.id channel_name                Date qty
+1        1        3226       2557        am/pm 2013-01-01 00:04:04   8
+2        2        6691       2631        am/pm 2013-01-01 00:11:26   4
+  total_price
+1       52.24
+2       39.72
+  COUNT(*)
+1    1e+05
+testthat results ================================================================
+OK: 35 SKIPPED: 0 FAILED: 0
+> 
+> {
++   # clean up
++   invisible(bigobject_sql("DROP TABLE hashtest"))
++   invisible(bigobject_sql("DROP TABLE iristest"))
++   bigobject_sql("GC ALL")
++ }
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 16.071   2.438  27.175 

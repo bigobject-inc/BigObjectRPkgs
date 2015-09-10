@@ -1,3 +1,4 @@
+#'@importFrom methods setClass
 setClass("BigObjectDriver", representation("DBIDriver"))
 
 # For dbDriver("BigObject")
