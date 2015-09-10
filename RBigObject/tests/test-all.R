@@ -3,6 +3,9 @@ options(
   "BIGOBJECT_PORT" = Sys.getenv("BIGOBJECT_PORT")
 )
 
+print(getOption("BIGOBJECT_IP", "127.0.0.1"))
+print(getOption("BIGOBJECT_PORT", "9090"))
+
 library("testthat")
 library("RBigObject")
 library("digest")
@@ -10,15 +13,7 @@ library("magrittr")
 {
 # bootstrap
   invisible(bigobject_sql("DROP TABLE hashtest"))
-}
-
-verify <- function(obj, signature) {
-  expect_equal(digest(obj), signature)
-}
-
-verify_sql <- function(stmt, signature) {
-  response <- bigobject_sql(stmt)
-  verify(response, signature)
+  invisible(bigobject_sql("DROP TABLE iristest"))
 }
 
 test_check("RBigObject")
@@ -26,7 +21,7 @@ test_check("RBigObject")
 {
   # clean up
   invisible(bigobject_sql("DROP TABLE hashtest"))
-
+  invisible(bigobject_sql("DROP TABLE iristest"))
   bigobject_sql("GC ALL")
 }
 

@@ -23,11 +23,24 @@ test_that("BigObjectResult", {
   con <- dbConnect(drv, ip, port)
   rs <- dbSendQuery(con, "SELECT * FROM sales")
   expect_equal(rs$index, 0L)
-  verify(fetch(rs, 10), "143ba4e036ba2892ded1cf931c037390")
+  df <- fetch(rs, 10)
+  df0 <-
+    structure(list(order_id = c("1", "2", "2", "3", "3", "3", "3", 
+    "4", "5", "5"), Customer.id = c("3226", "6691", "6691", "4138", 
+    "4138", "4138", "4138", "1292", "5596", "5596"), Product.id = c("2557", 
+    "2631", "1833", "1626", "375", "3336", "736", "4434", "4135", 
+    "3528"), channel_name = c("am/pm", "am/pm", "am/pm", "am/pm", 
+    "am/pm", "am/pm", "CVS", "7-11", "7-11", "am/pm"), Date = structure(c(1356969844, 
+    1356970286, 1356970862, 1356971422, 1356971744, 1356972312, 1356972934, 
+    1356973560, 1356973722, 1356974290), class = c("POSIXct", "POSIXt"
+    )), qty = c(8, 4, 1, 5, 6, 8, 6, 6, 10, 9), total_price = c(52.24, 
+    39.72, 6.9, 42.1, 67.26, 41.68, 56.4, 86.64, 50.1, 94.68)), .Names = c("order_id", 
+    "Customer.id", "Product.id", "channel_name", "Date", "qty", "total_price"
+    ), class = "data.frame", row.names = c("1", "2", "3", "4", "5", 
+    "6", "7", "8", "9", "10"))
+  expect_equal(nrow(df), 10L)
   expect_equal(rs$index, 10L)
-  df2 <- fetch(rs, -1)
-  verify(df2, "8407dabc18a838407e34f9c26861da78")
-  expect_equal(ls(con@results) %>% length, 1L)
+  expect_equal(df, df0)
   dbClearResult(rs)
   expect_equal(ls(con@results) %>% length, 0L)
   expect_false(rs@handle %in% dbListResults(con))
@@ -49,16 +62,17 @@ test_that("dbGetQuery", {
   drv <- dbDriver("BigObject")
   con <- dbConnect(drv, ip, port)
   df <- dbGetQuery(con, "SELECT * FROM sales")
-  verify(df, "8d44d2d9bb36e9d227cfca72d504107d")
   df2 <- dbReadTable(con, "sales")
-  verify(df2, "8d44d2d9bb36e9d227cfca72d504107d")
+  expect_equal(df, df2)
+  expect_equal(nrow(df), 100000)
   dbDisconnect(con)
 })
 
 test_that("dbGetInfo", {
   drv <- dbDriver("BigObject")
   con <- dbConnect(drv, ip, port)
-  verify(capture.output(dbGetInfo(con)), "4aa54be68bb27826ebfceba44dd3428a")
+  expect_match(capture.output(dbGetInfo(con)), ip)
+  expect_match(capture.output(dbGetInfo(con)), port)
   summary(con)
 })
 
