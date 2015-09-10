@@ -251,6 +251,7 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
 #'@importFrom httr GET
 #'@importFrom httr PUT
 #'@importFrom httr content_type
+#'@importFrom utils write.table
 #'@export
 bigobject_import <- function(df, name, action = c("create", "append", "overwrite"), ip = getOption("BIGOBJECT_IP", "127.0.0.1"), port = getOption("BIGOBJECT_PORT", "9090"), verbose = getOption("BIGOBJECT_VERBOSE", TRUE)) {
   schema <- sapply(df, .bigobject_datatype)
