@@ -33,10 +33,10 @@ env:
     - WARNINGS_ARE_ERRORS=1
     - _R_CHECK_FORCE_SUGGESTS_=0
     - BOOTSTRAP_LATEX=1
-    - R_BUILD_ARGS="--no-manual"
-    - R_CHECK_ARGS="--no-manual"
-    - BIGOBJECT_IP="127.0.0.1"
-    - BIGOBJECT_PORT="9090"
+    - R_BUILD_ARGS=--no-manual
+    - R_CHECK_ARGS=--no-manual
+    - BIGOBJECT_IP=127.0.0.1
+    - BIGOBJECT_PORT=9090
 
 services:
   - docker
