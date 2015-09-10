@@ -86,8 +86,8 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   }
 }
 
-.get_bigobject_poster <- function(ip, port) {
-  url <- sprintf("%s/cmd", paste(ip, port, sep = ":"))
+.get_bigobject_poster <- function(ip, port, path = "cmd") {
+  url <- sprintf("%s/%s", paste(ip, port, sep = ":"), path)
   function(body, as = NULL) {
     POST(url, body = body) %>% content(as)
   }
@@ -100,6 +100,7 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   check_response(handle)
   handle$Content$res
 }
+
 
 .bigobject_sql_hdesc <- function(handle, ip, port, verbose) {
   body <- .bigobject_stmt(sprintf("hdesc %s", handle))
@@ -208,4 +209,16 @@ bigobject_sql <- function(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), por
   obj <- poster(body)
   check_response(obj)
   invisible(NULL)
+}
+
+#'@title Import data.frame to BigObject
+#'@references url{http://docs.bigobject.io/API/Data_Import_Service.html}
+#'@param df data.frame. The data which will be imported to BigObject.
+#'@param name. The table name of the imported 
+#'@param ip string. The ip address or domain name to the BigObject instance.
+#'@param port string. The port number.
+#'@param verbose logical value. Whether to print verbose message.
+#'@export
+bigobject_import <- function(df, name, ip = getOption("BIGOBJECT_IP", "127.0.0.1"), port = getOption("BIGOBJECT_PORT", "9090"), verbose = getOption("BIGOBJECT_VERBOSE", TRUE)) {
+  poster <- .get_bigobject_poster
 }
