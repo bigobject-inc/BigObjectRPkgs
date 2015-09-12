@@ -22,7 +22,9 @@ test_that("INSERT with single statement", {
 })
 
 test_that("SELECT to verify that INSERT is succesful", {
-  verify_sql("SELECT count(*) FROM hashtest", "8f1484ede34071d79c0009a1450744c3")
+  df <- bigobject_sql("SELECT count(*) FROM hashtest")
+  df2 <- structure(list(`COUNT(*)` = 1), .Names = "COUNT(*)", class = "data.frame", row.names = "1")
+  expect_equal(df, df2)
 })
 
 test_that("INSERT with multiple statement", {
@@ -37,34 +39,52 @@ test_that("INSERT with multiple statement", {
 })
 
 test_that("SELECT to verify that INSERT is succesful", {
-  verify_sql("SELECT count(*) FROM hashtest", "dc28600c0419f1e3f69f40c1e2aa028b")
-  verify_sql("SELECT * FROM hashtest", "d81a3484e9ea85cbec1273940ee4a365")
+  df <- bigobject_sql("SELECT count(*) FROM hashtest")
+  expect_equal(df, structure(list(`COUNT(*)` = 5), .Names = "COUNT(*)", class = "data.frame", row.names = "1"))
+  df <- bigobject_sql("SELECT * FROM hashtest")
+  expect_equal(df, structure(list(id = c("1", "2", "3", "4", "5"), val = c("hello_internet", 
+    "hello_world", "hello_jeff", "hello_eugene", "hello_ethan")), .Names = c("id", 
+    "val"), class = "data.frame", row.names = c("1", "2", "3", "4", 
+    "5"))
+  )
 })
 
 test_that("MUTATE", {
   response <- bigobject_sql("UPDATE hashtest SET val='test' WHERE id='4'")
   expect_is(response, "NULL")
-  verify_sql("SELECT * FROM hashtest", "46883d627fbbf184439f7a54d087ba37")
+  df <- bigobject_sql("SELECT * FROM hashtest")
+  expect_equal(df$val[4], "test")
 })
 
 test_that("TRIM", {
+  df0 <- bigobject_sql("SELECT * FROM hashtest")
   response <- bigobject_sql("TRIM hashtest TO 2")
   expect_is(response, "NULL")
-  verify_sql("SELECT * FROM hashtest", "ee8ca8cd44ab5659b3d13e15ea2ffdc3")
-  response <- bigobject_sql("TRIM hashtest TO 2")
-  expect_is(response, "NULL")
-  verify_sql("SELECT * FROM hashtest", "ee8ca8cd44ab5659b3d13e15ea2ffdc3")
+  df <- bigobject_sql("SELECT * FROM hashtest")
+  expect_equal(df, head(df0, 2))
 })
 
 test_that("ALTER TABLE", {
+  df0 <- bigobject_sql("SELECT * FROM hashtest")
   response <- bigobject_sql("ALTER TABLE hashtest RENAME id TO key2")
-  verify_sql("SELECT * FROM hashtest", "e390cdc89da3450cf6256cd0b6c3c329")
+  df <- bigobject_sql("SELECT * FROM hashtest")
+  expect_equal(colnames(df)[1], "key2")
+  expect_equal(df0[[1]], df[[1]])
+  expect_equal(df0[[2]], df[[2]])
 })
 
 test_that("SELECT and sales", {
-  verify_sql("SELECT * FROM sales LIMIT 2", "c3db36c1e334e2a2c884c9db0b056eb0")
-  verify_sql("SELECT count(*) FROM sales", "5710c62ed03ac07a54ce9e4eb4bc3919")
-  verify_sql("SELECT * FROM sales", "8d44d2d9bb36e9d227cfca72d504107d")
+  df <- bigobject_sql("SELECT * FROM sales LIMIT 2")
+  print(df)
+  df <- bigobject_sql("SELECT count(*) FROM sales")
+  print(df)
+  df <- bigobject_sql("SELECT * FROM sales")
+  expect_equal(nrow(df), 100000)
+  expect_equal(sapply(df, class), structure(list(order_id = "character", Customer.id = "character", 
+    Product.id = "character", channel_name = "character", Date = c("POSIXct", 
+    "POSIXt"), qty = "numeric", total_price = "numeric"), 
+    .Names = c("order_id", "Customer.id", "Product.id","channel_name", "Date", "qty", "total_price"
+  )))
+  expect_equal(sum(df[[6]]), 549522)
 })
-
 

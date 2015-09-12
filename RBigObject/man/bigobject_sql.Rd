@@ -4,9 +4,8 @@
 \alias{bigobject_sql}
 \title{Submit SQL Query to BigObject}
 \usage{
-bigobject_sql(stmt, ip = getOption("BIGOBJECT_IP", "127.0.0.1"),
-  port = getOption("BIGOBJECT_PORT", "9090"),
-  verbose = getOption("BIGOJBECT_VERBOSE", TRUE), page = 1000L)
+bigobject_sql(stmt, ip = get_ip(), port = get_port(),
+  verbose = get_verbose(), page = 1000L)
 }
 \arguments{
 \item{stmt}{character. A series of SQL statement.

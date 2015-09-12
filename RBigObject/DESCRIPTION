@@ -5,8 +5,10 @@ Version: 0.1
 Date: 2015-09-07
 Author: Wush Wu
 Maintainer: Wush Wu <wush978@gmail.com>
-Description: The DBI Interface of BigObject via HTTP Protocol
+Description: The DBI Interface of BigObject via HTTP Protocol. This package 
+             implements the clint for BigObject according to 
+             <http://docs.bigobject.io/API/index.html>.
 License: GPL(>= 3)
-Depends: DBI(>= 0.3.1)
+Depends: DBI(>= 0.3.1), methods
 Imports: httr(>= 0.6.1), jsonlite(>= 0.9.16), magrittr(>= 1.5)
 Suggests: testthat(>= 0.9.1), digest(>= 0.6.8)

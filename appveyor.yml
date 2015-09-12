@@ -12,14 +12,16 @@ install:
 # Adapt as necessary starting from here
 
 build_script:
-  - copy travis-tools.sh RBigObject/
-  - cd RBigObject && travis-tool.sh install_deps && cd ..
+  - copy travis-tool.sh.cmd RBigObject\
+  - copy ..\travis-tool.sh travis-tool.sh
+  - cd RBigObject
+  - travis-tool.sh install_deps
 
 test_script:
-  - cd RBigObject && travis-tool.sh run_tests && cd ..
+  - travis-tool.sh run_tests
 
 on_failure:
-  - cd RBigObject && travis-tool.sh dump_logs
+  - travis-tool.sh dump_logs
 
 artifacts:
   - path: '*.Rcheck\**\*.log'
