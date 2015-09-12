@@ -1,7 +1,7 @@
 
-R version 3.2.2 (2015-08-14) -- "Fire Safety"
+R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
 Copyright (C) 2015 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -15,11 +15,6 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> options(
-+   "BIGOBJECT_IP" = Sys.getenv("BIGOBJECT_IP"),
-+   "BIGOBJECT_PORT" = Sys.getenv("BIGOBJECT_PORT")
-+ )
-> 
 > library("testthat")
 > library("RBigObject")
 Loading required package: DBI
@@ -32,6 +27,10 @@ The following objects are masked from 'package:testthat':
 
     equals, is_less_than, not
 
+> 
+> bigobject_connection(Sys.getenv("BIGOBJECT_IP"), Sys.getenv("BIGOBJECT_PORT"))
+> bigobject_verbose(FALSE)
+> 
 > {
 + # bootstrap
 +   invisible(bigobject_sql("DROP TABLE hashtest"))
@@ -39,9 +38,9 @@ The following objects are masked from 'package:testthat':
 + }
 > 
 > test_check("RBigObject")
+DBI Interface : DBI Interface for BigObject
 DBI Interface for BigObject
-DBI Interface for BigObject
-   order_id Customer.id Product.id channel_name                Date qty
+...   order_id Customer.id Product.id channel_name                Date qty
 1         1        3226       2557        am/pm 2013-01-01 00:04:04   8
 2         2        6691       2631        am/pm 2013-01-01 00:11:26   4
 3         2        6691       1833        am/pm 2013-01-01 00:21:02   1
@@ -63,8 +62,20 @@ DBI Interface for BigObject
 8        86.64
 9        50.10
 10       94.68
-BigObject Connection. (ip: 140.112.42.22 port: 9898)
-  order_id Customer.id Product.id channel_name                Date qty
+.........BigObject Connection. (ip: 127.0.0.1 port: 9090)
+..........    order_id  Customer.id   Product.id channel_name         Date          qty 
+    "STRING"     "STRING"     "STRING"     "STRING" "DATETIME32"      "INT64" 
+ total_price 
+    "DOUBLE" 
+      id     name language    state  company   gender      age 
+"STRING" "STRING" "STRING" "STRING" "STRING" "STRING"  "INT32" 
+         id        name       brand  brandOwner weightGrams weightOunce 
+   "STRING"    "STRING"    "STRING"    "STRING"     "FLOAT"     "FLOAT" 
+   category       price        cost      profit 
+   "STRING"     "FLOAT"     "FLOAT"     "FLOAT" 
+
+Import Data : ....
+Basic CRUD : ................  order_id Customer.id Product.id channel_name                Date qty
 1        1        3226       2557        am/pm 2013-01-01 00:04:04   8
 2        2        6691       2631        am/pm 2013-01-01 00:11:26   4
   total_price
@@ -72,8 +83,8 @@ BigObject Connection. (ip: 140.112.42.22 port: 9898)
 2       39.72
   COUNT(*)
 1    1e+05
-testthat results ================================================================
-OK: 35 SKIPPED: 0 FAILED: 0
+...
+
 > 
 > {
 +   # clean up
@@ -86,4 +97,4 @@ OK: 35 SKIPPED: 0 FAILED: 0
 > 
 > proc.time()
    user  system elapsed 
- 16.071   2.438  27.175 
+ 10.586   0.985  12.648 

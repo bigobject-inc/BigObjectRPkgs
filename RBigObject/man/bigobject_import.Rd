@@ -5,9 +5,7 @@
 \title{Import data.frame to BigObject}
 \usage{
 bigobject_import(df, name, action = c("create", "append", "overwrite"),
-  ip = getOption("BIGOBJECT_IP", "127.0.0.1"),
-  port = getOption("BIGOBJECT_PORT", "9090"),
-  verbose = getOption("BIGOBJECT_VERBOSE", TRUE))
+  ip = get_ip(), port = get_port(), verbose = get_verbose())
 }
 \arguments{
 \item{df}{data.frame. The data which will be imported to BigObject.}

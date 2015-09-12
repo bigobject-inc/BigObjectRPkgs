@@ -46,7 +46,7 @@ setMethod("dbDisconnect", "BigObjectConnection",
             handles <- DBI::dbListResults(conn)
             if (length(handles) > 0) {
               for(handle in handles) {
-                .bigobject_gc(handle, conn@ip, conn@port)
+                .bigobject_gc(handle, conn@ip, conn@port, verbose = get_verbose())
               }
               rm(list = handles, envir = conn@results)
             }
@@ -58,6 +58,8 @@ setMethod("dbDisconnect", "BigObjectConnection",
 setClass("BigObjectResult", contains = c("DBIResult", "VIRTUAL"))
 
 setRefClass("BigObjectHandleResult", contains = "BigObjectResult", slots = c(handle = "character", conn = "BigObjectConnection"), fields = c(index = "integer"))
+
+.check_handle <- function(handle) handle@handle != ".NULL"
 
 setMethod("initialize", "BigObjectHandleResult", function(.Object, handle, conn) {
   .Object@handle <- handle
@@ -76,7 +78,7 @@ setMethod("initialize", "BigObjectErrorResult", function(.Object, err) {
 setMethod("dbClearResult", "BigObjectResult",
           def = function(res, ...) {
             if (inherits(res, "BigObjectErrorResult")) return(TRUE)
-            .bigobject_gc(res@handle, res@conn@ip, res@conn@port)
+            if (.check_handle(res)) .bigobject_gc(res@handle, res@conn@ip, res@conn@port, verbose = get_verbose())
             rm(list = res@handle, envir = res@conn@results)
             invisible(TRUE)
           },
@@ -85,14 +87,14 @@ setMethod("dbClearResult", "BigObjectResult",
 
 setMethod("fetch", signature(res="BigObjectResult", n="integer"),
           def = function(res, n, ...){
-            # browser()
+            if (!.check_handle(res)) return(NULL)
             start <- res$index + 1
             if (n == -1) {
               end <- -1
             } else {
               end <- res$index + n
             }
-            retval <- .bigobject_sql_scan(res@handle, res@conn@ip, res@conn@port, verbose = getOption("BIGOJBECT_VERBOSE", TRUE), 
+            retval <- .bigobject_sql_scan(res@handle, res@conn@ip, res@conn@port, verbose = get_verbose(), 
                                           start = start, end = end, as = "table")
             res$index <- res$index + nrow(retval)
             retval
@@ -110,10 +112,11 @@ setMethod("fetch", signature(res="BigObjectResult", n="numeric"),
 setMethod("dbSendQuery",
           signature(conn = "BigObjectConnection", statement = "character"),
           def = function(conn, statement,...) {
-            handle <- try(.bigobject_sql_handle(statement, conn@ip, conn@port, verbose = getOption("BIGOJBECT_VERBOSE", TRUE)), silent = TRUE)
+            handle <- try(.bigobject_sql_handle(statement, conn@ip, conn@port, verbose = get_verbose()), silent = TRUE)
             if (class(handle) == "try-error") {
               new("BigObjectErrorResult", conditionMessage(attr(handle, "condition")))
             } else {
+              if (is.null(handle)) handle <- ".NULL"
               (conn@results[[handle]] <- new("BigObjectHandleResult", handle, conn))
             }
           },
@@ -123,7 +126,7 @@ setMethod("dbSendQuery",
 setMethod("dbGetQuery",
           signature(conn = "BigObjectConnection", statement = "character"),
           def = function(conn, statement, ...) {
-            .bigobject_sql(statement, conn@ip, conn@port, verbose = getOption("BIGOJBECT_VERBOSE", TRUE))
+            .bigobject_sql(statement, conn@ip, conn@port, verbose = get_verbose())
           }
 )
 
@@ -135,7 +138,7 @@ setMethod("dbGetInfo", "BigObjectConnection",
 
 setMethod("dbListResults", "BigObjectConnection",
           def = function(conn, ...) {
-            .bigobject_gc_list(conn@ip, conn@port)
+            ls(conn@results)
           }
 )
 
@@ -145,8 +148,11 @@ setMethod("summary", "BigObjectConnection",
 
 setMethod("dbListTables", "BigObjectConnection",
           def = function(conn, ...){
-            handle <- .bigobject_sql_handle("SHOW TABLES", conn@ip, conn@port, verbose = getOption("BIGOJBECT_VERBOSE", TRUE))
-            .bigobject_sql_scan(handle, conn@ip, conn@port, verbose = getOption("BIGOJBECT_VERBOSE", TRUE), as = "json")
+            poster <- .get_bigobject_poster(conn@ip, conn@port, get_verbose())
+            body <- .bigobject_stmt("SHOW TABLES")
+            retval <- poster(body)
+            check_response(retval)
+            unlist(retval$Content)
           },
           valueClass = "character"
 )
@@ -154,7 +160,7 @@ setMethod("dbListTables", "BigObjectConnection",
 setMethod("dbReadTable", signature(conn="BigObjectConnection", name="character"),
           def = function(conn, name, ...) {
             stmt <- sprintf("SELECT * FROM %s", name)
-            .bigobject_sql(stmt, conn@ip, conn@port, verbose = getOption("BIGOJBECT_VERBOSE", TRUE))
+            .bigobject_sql(stmt, conn@ip, conn@port, verbose = get_verbose())
           },
           valueClass = "data.frame"
 )
@@ -175,13 +181,16 @@ setMethod("dbWriteTable",
             stopifnot(is.data.frame(value))
             if (row.names) {
               value <- cbind(row.names(value), value)
-              rownames(value)[1] <- "row.names"
+              colnames(value)[1] <- "row.names"
             }
             # check parameters
             if (.exist <- DBI::dbExistsTable(conn, name)) {
               if (overwrite) {
-                if (!DBI::dbRemoveTable(conn, name)) warning(sprintf("Table %s could not be overwritten!", name))
-                return(FALSE)
+                if (!DBI::dbRemoveTable(conn, name)) {
+                  warning(sprintf("Table %s could not be overwritten!", name))
+                  return(FALSE)
+                }
+                .exist <- FALSE
               } else if (!append) {
                 warning(sprintf("Table %s is existed! (use parameter `overwrite` or `append` to change the existed table)", name))
                 return(FALSE)
@@ -205,7 +214,48 @@ setMethod("dbWriteTable",
               }
               DBI::dbClearResult(rs)
             }
-            stop("TODO")
+            .retval <- try(bigobject_import(value, name, action = "append", ip = conn@ip, port = conn@port, verbose = get_verbose()), silent = TRUE)
+            if (class(.retval)[1] != "try-error") TRUE else {
+              browser()
+              FALSE
+            }
           },
           valueClass = "logical"
+)
+
+setMethod("dbExistsTable",
+          signature(conn="BigObjectConnection", name="character"),
+          def = function(conn, name, ...){
+            handle <- DBI::dbSendQuery(conn, sprintf("SELECT * FROM %s LIMIT 0", name))
+            if (inherits(handle, "BigObjectErrorResult")) FALSE else {
+              .bigobject_gc(handle@handle, conn@ip, conn@port, get_verbose())
+              TRUE
+            }
+          },
+          valueClass = "logical"
+)
+
+setMethod("dbRemoveTable", 
+          signature(conn="BigObjectConnection", name="character"),
+          def = function(conn, name, ...) {
+            handle <- DBI::dbSendQuery(conn, sprintf("DROP TABLE %s", name))
+            if (inherits(handle, "BigObjectErrorResult")) FALSE else {
+              if (.check_handle(handle)) .bigobject_gc(handle@handle, conn@ip, conn@port, get_verbose())
+              TRUE
+            }
+          },
+          valueClass = "logical"
+)
+
+setMethod("dbListFields",
+          signature(conn="BigObjectConnection", name="character"),
+          def = function(conn, name, ...) {
+            stmt <- sprintf("SELECT * FROM %s LIMIT 0", name)
+            handle <- .bigobject_sql_handle(stmt, conn@ip, conn@port, get_verbose())
+            desc <- .bigobject_sql_hdesc(handle, conn@ip, conn@port, get_verbose())
+            retval <- desc$type
+            names(retval) <- desc$name
+            retval
+          },
+          valueClass = "character"
 )

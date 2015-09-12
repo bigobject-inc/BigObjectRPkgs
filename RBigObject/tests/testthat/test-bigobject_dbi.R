@@ -1,7 +1,7 @@
 context("DBI Interface")
 
-ip <- getOption("BIGOBJECT_IP", "127.0.0.1")
-port <- getOption("BIGOBJECT_PORT", "9090")
+ip <- get_ip()
+port <- get_port()
 
 test_that("DBI Driver for BigObject", {
   drv <- dbDriver("BigObject")
@@ -13,7 +13,7 @@ test_that("DBI Driver for BigObject", {
 test_that("DBI Connection", {
   drv <- dbDriver("BigObject")
   con <- dbConnect(drv, ip, port)
-  con1 <- dbConnect(con)
+  # con1 <- dbConnect(con)
   dbDisconnect(con)
   stopifnot(ls(con@results) %>% length == 0)
 })
@@ -61,5 +61,39 @@ test_that("dbGetInfo", {
   expect_match(capture.output(dbGetInfo(con)), ip)
   expect_match(capture.output(dbGetInfo(con)), port)
   summary(con)
+  dbDisconnect(con)
 })
 
+test_that("dbListTables", {
+  drv <- dbDriver("BigObject")
+  con <- dbConnect(drv, ip, port)
+  dbListTables(con)
+  dbDisconnect(con)
+})
+
+test_that("dbWriteTable", {
+  drv <- dbDriver("BigObject")
+  con <- dbConnect(drv, ip, port)
+  if (dbExistsTable(con, "iristest2")) dbRemoveTable(con, "iristest2")
+  expect_true(dbWriteTable(con, "iristest2", iris))
+  suppressWarnings(expect_false(dbWriteTable(con, "iristest2", iris)))
+  expect_equal(dbReadTable(con, "iristest2") %>% nrow, 150)
+  expect_true(dbWriteTable(con, "iristest2", iris, append = TRUE))
+  expect_equal(dbReadTable(con, "iristest2") %>% nrow, 300)
+  expect_true(dbWriteTable(con, "iristest2", iris, overwrite = TRUE))
+  expect_equal(dbReadTable(con, "iristest2") %>% nrow, 150)
+  expect_error(dbWriteTable(con, "iristest2", iris, overwrite = TRUE, append = TRUE), "overwrite and append")
+  expect_true(dbExistsTable(con, "iristest2"))
+  expect_true(dbRemoveTable(con, "iristest2"))
+  dbDisconnect(con)
+})
+
+
+test_that("dbListFields", {
+  drv <- dbDriver("BigObject")
+  con <- dbConnect(drv, ip, port)
+  print(dbListFields(con, "sales"))
+  print(dbListFields(con, "Customer"))
+  print(dbListFields(con, "Product"))
+  dbDisconnect(con)
+})
