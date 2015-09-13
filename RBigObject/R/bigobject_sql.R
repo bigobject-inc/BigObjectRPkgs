@@ -37,11 +37,11 @@ type_mapping <- function(x) {
   lapply(retval, function(x) get(sprintf("as.%s", x)))
 }
 
-#'@title Submit SQL Query to BigObject
+#'@title Submit SQL Query to BigObject Analytics
 #'@param stmt character. A series of SQL statement. 
 #'Each element is a complete SQL statement.
 #'These query will be executed from the first element to the last element.
-#'@param ip string. The ip address or domain name to the BigObject instance.
+#'@param ip string. The ip address or domain name to the BigObject Analytics instance.
 #'@param port string. The port number.
 #'@param verbose logical value. Whether to print verbose message.
 #'@param page integer. The chunk size of retriving data. The max size is 1000.
@@ -232,16 +232,16 @@ bigobject_sql <- function(stmt, ip = get_ip(), port = get_port(), verbose = get_
   invisible(NULL)
 }
 
-#'@title Import data.frame to BigObject
+#'@title Import data.frame to BigObject Analytics
 #'@references url{http://docs.bigobject.io/API/Data_Import_Service.html}
-#'@param df data.frame. The data which will be imported to BigObject.
+#'@param df data.frame. The data which will be imported to BigObject Analytics.
 #'@param name string. The table name of the imported 
-#'@param action string. Specify how to update object in BigObject. Only the first element is used. Please see details.
-#'@param ip string. The ip address or domain name to the BigObject instance.
+#'@param action string. Specify how to update object in BigObject Analytics. Only the first element is used. Please see details.
+#'@param ip string. The ip address or domain name to the BigObject Analytics instance.
 #'@param port string. The port number.
 #'@param verbose logical value. Whether to print verbose message.
 #'@details
-#'The \code{action} parameter indicates the behavior of BigObject:
+#'The \code{action} parameter indicates the behavior of BigObject Analytics:
 #'\itemize{
 #'  \item {"create":} Creating a new table.
 #'  \item {"append":} Appending data to an existed table.

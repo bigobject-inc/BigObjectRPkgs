@@ -2,29 +2,29 @@
 % Please edit documentation in R/bigobject_sql.R
 \name{bigobject_import}
 \alias{bigobject_import}
-\title{Import data.frame to BigObject}
+\title{Import data.frame to BigObject Analytics}
 \usage{
 bigobject_import(df, name, action = c("create", "append", "overwrite"),
   ip = get_ip(), port = get_port(), verbose = get_verbose())
 }
 \arguments{
-\item{df}{data.frame. The data which will be imported to BigObject.}
+\item{df}{data.frame. The data which will be imported to BigObject Analytics.}
 
 \item{name}{string. The table name of the imported}
 
-\item{action}{string. Specify how to update object in BigObject. Only the first element is used. Please see details.}
+\item{action}{string. Specify how to update object in BigObject Analytics. Only the first element is used. Please see details.}
 
-\item{ip}{string. The ip address or domain name to the BigObject instance.}
+\item{ip}{string. The ip address or domain name to the BigObject Analytics instance.}
 
 \item{port}{string. The port number.}
 
 \item{verbose}{logical value. Whether to print verbose message.}
 }
 \description{
-Import data.frame to BigObject
+Import data.frame to BigObject Analytics
 }
 \details{
-The \code{action} parameter indicates the behavior of BigObject:
+The \code{action} parameter indicates the behavior of BigObject Analytics:
 \itemize{
  \item {"create":} Creating a new table.
  \item {"append":} Appending data to an existed table.

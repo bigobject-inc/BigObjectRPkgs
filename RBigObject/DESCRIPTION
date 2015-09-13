@@ -1,13 +1,13 @@
 Package: RBigObject
 Type: Package
-Title: DBI Interface of BigObject
+Title: R interface to the BigObject Analytics database system
 Version: 0.1
 Date: 2015-09-07
 Author: Wush Wu
 Maintainer: Wush Wu <wush978@gmail.com>
-Description: The DBI Interface of BigObject via HTTP Protocol. This package 
-             implements the clint for BigObject according to 
-             <http://docs.bigobject.io/API/index.html>.
+Description: BigObject Analytics is an analytic database. It is designed to help users easily gain actionable insights from 
+             their data and build data-driven applications. This package provides a Database Interface (DBI) compliant clint for 
+             R to access BigObject Analytics. The implementation is based on the HTTP RESTful API.
 License: GPL(>= 3)
 Depends: DBI(>= 0.3.1), methods
 Imports: httr(>= 0.6.1), jsonlite(>= 0.9.16), magrittr(>= 1.5)
