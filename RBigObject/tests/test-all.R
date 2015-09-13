@@ -3,8 +3,8 @@ library("RBigObject")
 library("magrittr")
 
 if (Sys.getenv("BIGOBJECT_IP") != "") {
-  bigobject_connection(Sys.getenv("BIGOBJECT_IP"), Sys.getenv("BIGOBJECT_PORT"))
   bigobject_verbose(FALSE)
+  bigobject_connection(Sys.getenv("BIGOBJECT_IP"), Sys.getenv("BIGOBJECT_PORT"))
   
   {
     # bootstrap

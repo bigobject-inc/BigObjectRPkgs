@@ -66,7 +66,7 @@ test_that("dbGetInfo", {
   con <- dbConnect(drv, ip, port)
   expect_match(capture.output(dbGetInfo(con)), ip)
   expect_match(capture.output(dbGetInfo(con)), port)
-  summary(con)
+  expect_match(capture.output(summary(con)) %>% paste(collapse = "\n"), "BigObject")
   dbDisconnect(con)
 })
 
