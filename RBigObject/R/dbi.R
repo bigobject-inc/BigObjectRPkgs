@@ -136,6 +136,12 @@ setMethod("dbGetInfo", "BigObjectConnection",
           }
 )
 
+setMethod("dbGetInfo", "BigObjectHandleResult",
+          def = function(dbObj, ...) {
+            DBI::dbGetInfo(dbObj@conn)
+          }
+)
+
 setMethod("dbListResults", "BigObjectConnection",
           def = function(conn, ...) {
             ls(conn@results)
@@ -258,4 +264,25 @@ setMethod("dbListFields",
             retval
           },
           valueClass = "character"
+)
+
+setMethod("dbListFields",
+          signature(conn="BigObjectHandleResult", name="missing"),
+          def = function(conn, name, ...) {
+            handle <- conn@handle
+            conn <- conn@conn
+            desc <- .bigobject_sql_hdesc(handle, conn@ip, conn@port, get_verbose())
+            desc$name
+          },
+          valueClass = "character"
+)
+
+setMethod("dbHasCompleted",
+          signature(res = "BigObjectResult"),
+          def = function(res, ...) {
+            conn <- res@conn
+            retval <- .bigobject_sql_scan(res@handle, conn@ip, conn@port, get_verbose(), start = res$index + 1, end = res$index + 1, as = "table")
+            nrow(retval) == 0
+          },
+          valueClass = "logical"
 )

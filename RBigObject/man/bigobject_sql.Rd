@@ -2,7 +2,7 @@
 % Please edit documentation in R/bigobject_sql.R
 \name{bigobject_sql}
 \alias{bigobject_sql}
-\title{Submit SQL Query to BigObject}
+\title{Submit SQL Query to BigObject Analytics}
 \usage{
 bigobject_sql(stmt, ip = get_ip(), port = get_port(),
   verbose = get_verbose(), page = 1000L)
@@ -12,7 +12,7 @@ bigobject_sql(stmt, ip = get_ip(), port = get_port(),
 Each element is a complete SQL statement.
 These query will be executed from the first element to the last element.}
 
-\item{ip}{string. The ip address or domain name to the BigObject instance.}
+\item{ip}{string. The ip address or domain name to the BigObject Analytics instance.}
 
 \item{port}{string. The port number.}
 
@@ -28,7 +28,7 @@ These query will be executed from the first element to the last element.}
 }
 }
 \description{
-Submit SQL Query to BigObject
+Submit SQL Query to BigObject Analytics
 }
 \details{
 This is a low level function which will be called by other sql interface.

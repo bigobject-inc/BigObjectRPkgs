@@ -36,5 +36,5 @@ get_port <- function() getOption(.port, "9090")
 #'@title Get the verbose of RBigObject.
 #'@return logical. Whether to print verbose message.
 #'@export
-get_verbose <- function() getOption(.verbose, TRUE)
+get_verbose <- function() getOption(.verbose, FALSE)
 
