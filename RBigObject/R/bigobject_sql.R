@@ -81,12 +81,21 @@ bigobject_sql <- function(stmt, ip = get_ip(), port = get_port(), verbose = get_
 .get_bigobject_operator <- function(ip, port, verbose, path = "/cmd", operator = POST) {
   url <- .get_bigobject_url(ip, port, path)
   function(body, ..., as = NULL) {
+    if (verbose) {
+      cat("VERBOSE MESSAGE (body) BEGIN\n")
+      print(body)
+      cat("VERBOSE MESSAGE (body) END\n")
+    }
     retval <- if (is.null(body)) {
       operator(url = url, ...) %>% content(as) 
     } else {
       operator(url = url, body = body, ...) %>% content(as)
     }
-    if (verbose) print(retval)
+    if (verbose) {
+      cat("VERBOSE MESSAGE (retval) BEGIN\n")
+      print(retval)
+      cat("VERBOSE MESSAGE (retval) END\n")
+    }
     retval
   }
 }
@@ -141,6 +150,7 @@ bigobject_sql <- function(stmt, ip = get_ip(), port = get_port(), verbose = get_
   obj <- fromJSON(tmp)
   if (obj$Status != 0) stop(obj$Err) else {
     if (is.null(obj$Content)) return(invisible(NULL))
+    if (length(obj$Content$content) == 0) return(data.frame())
     if (obj$Content$index == -1) {
       retval.content <- list(obj$Content$content)
     } else {
@@ -178,7 +188,7 @@ bigobject_sql <- function(stmt, ip = get_ip(), port = get_port(), verbose = get_
 }
 
 .bigobject_sql <- function(stmt, ip, port, verbose, page = 1000L) {
-  stopifnot(class(stmt) == "character")
+  stmt <- as.character(stmt)
   handle <- .bigobject_sql_handle(stmt, ip, port, verbose)
   if (is.null(handle)) return(invisible(NULL))
   desc <- .bigobject_sql_hdesc(handle, ip, port, verbose)
