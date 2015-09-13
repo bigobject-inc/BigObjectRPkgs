@@ -1,0 +1,13 @@
+Package: dplyrBigObject
+Type: Package
+Title: A dplyr Interface of BigObject
+Version: 0.1
+Date: 2015-09-13
+Author: Wush Wu
+Maintainer: Wush Wu <wush978@gmail.com>
+Description: This package provide a list of helper function to let the 
+             R users manipulate data in BigObject via dplyr verbs.
+License: GPL (>= 3)
+Depends: dplyr
+Imports: DBI, RBigObject
+Suggests: testthat(>= 0.9.1)
