@@ -18,7 +18,7 @@ if (Sys.getenv("BIGOBJECT_IP") != "") {
     # clean up
     invisible(bigobject_sql("DROP TABLE hashtest"))
     invisible(bigobject_sql("DROP TABLE iristest"))
-    bigobject_sql("GC ALL")
+    invisible(bigobject_sql("GC ALL"))
   }
 }
 
