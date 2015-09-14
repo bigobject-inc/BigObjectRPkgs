@@ -1,6 +1,6 @@
-language: c
+osx_image: xcode61
 
-sudo: true
+language: objective-c
 
 addons:
   apt_packages:
@@ -13,9 +13,8 @@ after_failure:
   - ./travis-tool.sh dump_logs
 
 before_install:
-  - docker pull macrodata/bigobject-community
-  - docker run -t -d --name bigobject -p 9090:9090 macrodata/bigobject-community
-  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+  - echo "options(repos = c(CRAN='http://cran.r-project.org'))" >> ~/.Rprofile
+  - curl -OL http://raw.github.com/wush978/r-travis-mac/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
 
@@ -35,8 +34,5 @@ env:
     - BOOTSTRAP_LATEX=1
     - R_BUILD_ARGS=--no-manual
     - R_CHECK_ARGS=--no-manual
-    - BIGOBJECT_IP=127.0.0.1
+    - BIGOBJECT_IP=54.187.60.210
     - BIGOBJECT_PORT=9090
-
-services:
-  - docker
