@@ -1,5 +1,10 @@
 # R Interface of BigObject Analytics
 
+Linux: [![Travis-ci Status](https://travis-ci.org/macrodatalab/BigObjectRPkgs.svg?branch=master)](https://travis-ci.org/macrodatalab/BigObjectRPkgs)
+Win : [![Build status](https://ci.appveyor.com/api/projects/status/rqguqyehk6bk51hs/branch/master?svg=true)](https://ci.appveyor.com/project/wush978/bigobjectrpkgs-9gc97/branch/master)
+OS X: [![Travis-ci Status](https://travis-ci.org/macrodatalab/BigObjectRPkgs.svg?branch=osx)](https://travis-ci.org/macrodatalab/BigObjectRPkgs)
+
+
 ## Introduction
 
 *BigObject Analytics* is an analytic database. It is designed to help users easily gain actionable insights from their data and build data-driven applications. By mining large sets of data, it allows developers and analysts to ask questions difficult to answer in SQL, for example, association discovery or meaningful data pattern recognition such as statistical significance, The 80-20 Rule, etc. More important, it empowers users to obtain the analytic results in a timely manner that the analysis can be truly interactive.
