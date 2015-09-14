@@ -18,7 +18,7 @@ The reader could follow the instruction in Docker Hub to setup an instance of Bi
 
 ### R Packages for BigObject
 
-- The package *RBigObject* provides a Database Interface (DBI) compliant clint for R to access BigObject Analytics. The implementation is based on the HTTP RESTful API.
+- The package *RBigObject* provides a Database Interface (DBI) compliant client for R to access BigObject Analytics. The implementation is based on the HTTP RESTful API.
 
 - (Coming soon) The package *dplyrBigObject* provides a dplyr compliant client for R to access BigObject Analytics. It is based on *RBigObject*.
 
