@@ -33,11 +33,28 @@ sql_subquery.BigObjectConnection <- function(con, sql, name) {
 
 #'@export
 src_translate_env.src_bigobject <- function(x) {
-  sql_variant(base_scalar, sql_translator(.parent = base_agg, 
-                                          n = function() sql("count(*)"), cor = sql_prefix("corr"), 
-                                          cov = sql_prefix("covar_samp"), sd = sql_prefix("stddev_samp"), 
-                                          var = sql_prefix("var_samp"), all = sql_prefix("bool_and"), 
-                                          any = sql_prefix("bool_or"), paste = function(x, collapse) build_sql("string_agg(", 
-                                                                                                               x, collapse, ")")), base_win
+  sql_variant(
+    base_scalar, sql_translator(.parent = base_agg, 
+    n = function() sql("count(*)"), 
+    cor = sql_prefix("corr"), 
+    cov = sql_prefix("covar_samp"), 
+    sd = sql_prefix("stddev_samp"), 
+    var = sql_prefix("var_samp"), 
+    all = sql_prefix("bool_and"), 
+    any = sql_prefix("bool_or"), 
+    paste = function(x, collapse) build_sql("string_agg(", x, collapse, ")")
+    ), 
+    base_win
   )
+}
+
+#'@export
+#'@importFrom dplyr build_sql
+#'@importFrom dplyr db_save_query
+db_save_query.BigObjectConnection <- function(con, sql, name, temporary = TRUE, ...) {
+  tt_sql <- build_sql("CREATE ", if (temporary) 
+      sql("TEMPORARY "), "TABLE ", ident(name), " AS ", sql, 
+      con = con)
+  dbGetQuery(con, tt_sql)
+  name
 }

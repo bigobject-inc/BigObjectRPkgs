@@ -1,3 +1,2 @@
-travis-tool.sh.cmd
 ^.*\.Rproj$
 ^\.Rproj\.user$
