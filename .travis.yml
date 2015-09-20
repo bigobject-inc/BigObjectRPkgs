@@ -8,12 +8,15 @@ addons:
 
 script: 
   - cd RBigObject && ./../travis-tool.sh run_tests && cd ..
+  - cd dplyrBigObject && ./../travis-tool.sh run_tests && cd ..
 
 after_failure:
   - ./travis-tool.sh dump_logs
 
 before_install:
   - docker pull macrodata/bigobject-community
+  - sudo service docker restart
+  - sleep 10
   - docker run -t -d --name bigobject -p 9090:9090 macrodata/bigobject-community
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
@@ -21,6 +24,8 @@ before_install:
 
 install:
   - cd RBigObject && ./../travis-tool.sh install_deps && cd ..
+  - R CMD build RBigObject && R CMD INSTALL RBigObject*.tar.gz
+  - cd dplyrBigObject && ./../travis-tool.sh install_deps && cd ..
   # Install testthat after running install_deps, otherwise devtools itself might be installed from CRAN or c2d4u
 
 after_success:
