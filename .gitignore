@@ -1,3 +1,5 @@
 doc
 .Rproj.user
 .Rprofile
+*.Rproj
+.Rhistory
