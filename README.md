@@ -17,7 +17,7 @@ BigObject Analytics delivers an analytic framework that unmask the intelligence 
 
 ### BigObject Analytics Community Edition
 
-There is a BigObject Analytics Community Edition in Docker Hub: <https://hub.docker.com/r/macrodata/bigobject-community/>. 
+There is a BigObject Analytics Community Edition in Docker Hub: <https://hub.docker.com/r/bigobject/bigobject-community/>. 
 
 The reader could follow the instruction in Docker Hub to setup an instance of BigObject Analytics Community Edition.
 
